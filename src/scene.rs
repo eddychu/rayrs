@@ -8,6 +8,9 @@ pub struct Scene {
     pub objects: Vec<Object>,
 }
 
+unsafe impl Send for Scene {}
+unsafe impl Sync for Scene {}
+
 impl Scene {
     pub fn new() -> Scene {
         Scene { objects: Vec::new()}

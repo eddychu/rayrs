@@ -66,11 +66,15 @@ impl <'scene> BVH<'scene> {
             return None
         } 
         let mut hit = None;
+        let mut closest = std::f64::MAX;
         if self.nodes[node].left.is_none() && self.nodes[node].right.is_none() {
             for i in 0..self.nodes[node].primitive.len() {
                 let object = &self.objects[self.nodes[node].primitive[i]];
                 if let Some(record) = object.hit(ray) {
-                    hit = Some(record);
+                    if record.t < closest {
+                        closest = record.t;
+                        hit = Some(record);
+                    }
                 }
             }
             return hit
@@ -115,3 +119,5 @@ impl<'scene> Hittable for BVH<'scene> {
     }
 }
     
+unsafe impl<'scene> Send for BVH<'scene> {}
+unsafe impl<'scene> Sync for BVH<'scene> {}

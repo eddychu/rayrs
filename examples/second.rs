@@ -6,14 +6,14 @@ use rayrs::{renderer::Renderer, camera::{PerspectiveCamera}, integrator::TestInt
 fn main() {
     let width = 400;
     let height = 300;
-    let samples = 1000;
-    let depth = 10;
+    let samples = 50;
+    let depth = 50;
     let mut renderer = Renderer::new(width, height, samples, depth);
     let camera = PerspectiveCamera::new(
-        glam::DVec3::new(13.0, 2.0, 3.0),
+        glam::DVec3::new(13.0, 3.0, 3.0),
         glam::DVec3::new(0.0, 0.0, 0.0),
         glam::DVec3::new(0.0, 1.0, 0.0),
-        20.0,
+        30.0,
         width as f64 / height as f64,
     );
 
@@ -57,7 +57,7 @@ fn main() {
     let material3 = Rc::new(Box::new(Metal::new(glam::DVec3::new(0.7, 0.6, 0.5), 0.0)) as Box<dyn Material>);
     scene.add(Object::new(Rc::new(Box::new(Sphere::new(glam::DVec3::new(4.0, 1.0, 0.0), 1.0)) as Box<dyn Hittable>), material3));
 
-    renderer.render(&camera, &scene, &mut sampler, &integrator);
+    renderer.render(&camera, &scene, &integrator);
 
     renderer.save("second.png");
 }

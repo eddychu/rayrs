@@ -94,9 +94,12 @@ impl BBox {
             if inv_d < 0.0 {
                 std::mem::swap(&mut t_near, &mut t_far);
             }
+            if t0 > t_far || t_near > t1 {
+                return false;
+            }
             t0 = t_near.max(t0);
             t1 = t_far.min(t1);
-            if t0 >= t1 {
+            if t0 > t1 {
                 return false;
             }
         }

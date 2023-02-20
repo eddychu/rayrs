@@ -17,7 +17,6 @@ fn main() {
     );
 
     let integrator = TestIntegrator::new();
-    let mut sampler = RandomSampler::new();
     let mut scene = Scene::new();
 
     let material_ground = Rc::new(Box::new(Lambertian::new(glam::DVec3::new(0.8, 0.8, 0.0))) as Box<dyn Material>) ;
@@ -38,7 +37,7 @@ fn main() {
     scene.add(object3);
     scene.add(object4);
 
-    renderer.render(&camera, &scene, &mut sampler, &integrator);
+    renderer.render(&camera, &scene,  &integrator);
 
     renderer.save("first.png");
 }

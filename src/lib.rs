@@ -11,3 +11,4 @@ pub mod sampling;
 pub mod object;
 pub mod accel;
 pub mod bbox;
+pub mod threadpool;

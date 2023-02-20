@@ -2,7 +2,7 @@ use glam::DVec3;
 
 use crate::{ray::Ray, scene::Scene, sampler::Sampler, accel::Accel};
 
-pub trait Integrator {
+pub trait Integrator : Send + Sync{
     fn li(&self, ray: &Ray, accel: &dyn Accel, sampler: &mut dyn Sampler, depth: i32) -> DVec3;
 }
 

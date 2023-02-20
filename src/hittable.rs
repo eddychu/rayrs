@@ -57,8 +57,8 @@ impl Hittable for Sphere {
 
     fn bbox(&self) -> BBox {
         BBox::new(
-            self.center - DVec3::splat(self.radius),
-            self.center + DVec3::splat(self.radius),
+            self.center - DVec3::splat(self.radius + 0.0001) ,
+            self.center + DVec3::splat(self.radius + 0.0001),
         )
     }
 }

@@ -2,10 +2,9 @@ use glam::DVec3;
 
 use crate::{ray::Ray, transform::Transform};
 
-pub trait Camera {
+pub trait Camera : Send + Sync{
     fn get_ray(&self, u: f64, v: f64) -> Ray;
 }
-
 
 pub struct PerspectiveCamera {
     pub transform: Transform,

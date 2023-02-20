@@ -1,16 +1,17 @@
-use glam::DVec3;
+use glam::{DVec3};
+use rayon::prelude::*;
 
-use crate::accel::BVH;
+use crate::accel::{BVH};
 use crate::camera::Camera;
-use crate::integrator::Integrator;
-use crate::sampler::Sampler;
+use crate::integrator::{Integrator};
+use crate::sampler::{Sampler, RandomSampler};
 use crate::scene::Scene;
 pub struct Renderer {
     pub width: usize,
     pub height: usize,
-    pub buffer: Vec<DVec3>,
     pub samples: usize,
     pub depth: i32,
+    pub buffer: Vec<DVec3>,
 }
 
 impl Renderer {
@@ -18,18 +19,20 @@ impl Renderer {
         Renderer { width, height, buffer: vec![DVec3::ZERO; width * height], samples, depth }
     }
 
-    pub fn render(&mut self, camera: &dyn Camera, scene: &Scene, sampler: &mut dyn Sampler, integrator: &dyn Integrator) {
+    pub fn render(&mut self, camera: &dyn Camera, scene: &Scene, integrator: &dyn Integrator) {
         let bvh = BVH::new(&scene.objects);
-
-        for y in 0..self.height {
+        let bands: Vec<(usize, &mut [DVec3])> = self.buffer.chunks_mut(self.width).enumerate().collect();
+        bands.into_par_iter().for_each(|(i, band)| {
+            let mut sampler = RandomSampler::new();
+            let y = i;
             for x in 0..self.width {
                 let mut color = DVec3::ZERO;
                 for _ in 0..self.samples {
-                    let u = (x as f64 + rand::random::<f64>()) / self.width as f64 * 2.0 - 1.0;
-                    let v = 1.0 - (y as f64 + rand::random::<f64>()) / self.height as f64 * 2.0;
+                    let u = (x as f64 + sampler.get_1d()) / self.width as f64 * 2.0 - 1.0;
+                    let v = 1.0 - (y as f64 + sampler.get_1d()) / self.height as f64 * 2.0;
                     let ray = camera.get_ray(u, v);
                     // println!("ray: {:?}", ray);
-                    color  += integrator.li(&ray, &bvh, sampler, self.depth);
+                    color  += integrator.li(&ray, &bvh, &mut sampler, self.depth);
                     // color += (ray.direction + DVec3::ONE) * 0.5;
                 }
 
@@ -38,9 +41,31 @@ impl Renderer {
                 color.y = color.y.clamp(0.0, 1.0);
                 color.z = color.z.clamp(0.0, 1.0);
                 
-                self.buffer[y * self.width + x] = color;
+                band[x] = color;
             }
-        }
+        })
+
+        
+        // for y in 0..self.height {
+        //     for x in 0..self.width {
+        //         let mut color = DVec3::ZERO;
+        //         for _ in 0..self.samples {
+        //             let u = (x as f64 + rand::random::<f64>()) / self.width as f64 * 2.0 - 1.0;
+        //             let v = 1.0 - (y as f64 + rand::random::<f64>()) / self.height as f64 * 2.0;
+        //             let ray = camera.get_ray(u, v);
+        //             // println!("ray: {:?}", ray);
+        //             color  += integrator.li(&ray, &bvh, sampler, self.depth);
+        //             // color += (ray.direction + DVec3::ONE) * 0.5;
+        //         }
+
+        //         color /= self.samples as f64;
+        //         color.x = color.x.clamp(0.0, 1.0);
+        //         color.y = color.y.clamp(0.0, 1.0);
+        //         color.z = color.z.clamp(0.0, 1.0);
+                
+        //         self.buffer[y * self.width + x] = color;
+        //     }
+        // }
     }
 
 
